@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>معدل الأسطر الاحترافي</title>
+    <style>
+        /* CSS الأصلي */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f9fafb;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* يمنع السكرول الخارجي */
+        }
+
+        header {
+            background: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f1f1;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        header h1 {
+            font-size: 14px;
+            color: #111;
+        }
+
+        .clear-btn {
+            background: #fef2f2;
+            color: #ef4444;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 0;
+        }
+
+        .section-input { flex: 4; }
+        .section-output { flex: 3; }
+
+        input, textarea {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 13px;
+            outline: none;
+            background: white;
+            transition: border-color 0.2s;
+        }
+
+        textarea {
+            flex: 1;
+            resize: none;
+            font-family: monospace;
+            background: white;
+        }
+
+        /* إخفاء شريط التمرير */
+        textarea::-webkit-scrollbar { display: none; }
+        textarea {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* إخفاء placeholder عند التركيز */
+        input:focus::placeholder, textarea:focus::placeholder {
+            color: transparent;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #3b82f6;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            padding: 2px 0;
+        }
+
+        button.action {
+            flex: 1;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            font-size: 12px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .btn-add { background: #2563eb; flex: 2 !important; }
+        .btn-remove { background: #e5e7eb; color: #374151; }
+        .btn-copy { background: #111827; }
+
+        button.action:active { transform: scale(0.98); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .copied-badge {
+            font-size: 10px;
+            color: #10b981;
+            font-weight: bold;
+            display: none;
+        }
+
+        footer {
+            padding: 6px;
+            text-align: center;
+            font-size: 9px;
+            color: #9ca3af;
+            background: white;
+            border-top: 1px solid #f1f1f1;
+        }
+
+        /* تحسينات للشاشات الكبيرة */
+        @media (min-width: 768px) {
+            main { flex-direction: row; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>معدل الأسطر</h1>
+        <button class="clear-btn" onclick="clearAll()">مسح الكل</button>
+    </header>
+
+    <main>
+        <!-- قسم الإدخال -->
+        <div class="section section-input">
+            <input type="text" id="prefix" placeholder="البادئة (مثال: - )" spellcheck="false" onkeydown="checkKey(event)">
+            <textarea id="lines" placeholder="ضع الأسطر هنا..." spellcheck="false" onkeydown="checkKey(event)"></textarea>
+        </div>
+
+        <!-- أزرار التحكم -->
+        <div class="btn-row">
+            <button class="action btn-add" onclick="process('add')">إضافة</button>
+            <button class="action btn-remove" onclick="process('remove')">حذف</button>
+            <button class="action btn-copy" id="copyBtn" onclick="copyResult()">
+                <span id="copyText">نسخ</span>
+                <span class="copied-badge" id="copiedBadge">تم!</span>
+            </button>
+        </div>
+
+        <!-- قسم النتيجة -->
+        <div class="section section-output">
+            <textarea id="result" placeholder="النتيجة ستظهر هنا..." readonly spellcheck="false"></textarea>
+        </div>
+    </main>
+
+    <footer>
+        أداة التعديل السريع • Morad App
+    </footer>
+
+    <script>
+        // JS الأصلي
+        const prefixInput = document.getElementById('prefix');
+        const linesInput = document.getElementById('lines');
+        const resultOutput = document.getElementById('result');
+        const copyBtn = document.getElementById('copyBtn');
+        const copiedBadge = document.getElementById('copiedBadge');
+        const copyTextLabel = document.getElementById('copyText');
+
+        function process(type) {
+            const prefix = prefixInput.value;
+            const lines = linesInput.value;
+            
+            if (!lines) return;
+
+            const linesArray = lines.split('\n');
+            let processedLines;
+
+            if (type === 'add') {
+                processedLines = linesArray.map(line => prefix + line);
+            } else {
+                processedLines = linesArray.map(line => {
+                    if (line.startsWith(prefix)) {
+                        return line.slice(prefix.length);
+                    }
+                    return line;
+                });
+            }
+
+            resultOutput.value = processedLines.join('\n');
+        }
+
+        async function copyResult() {
+            const text = resultOutput.value;
+            if (!text) return;
+
+            try {
+                await navigator.clipboard.writeText(text);
+                
+                // تغيير شكل الزر للتأكيد
+                copyTextLabel.style.display = 'none';
+                copiedBadge.style.display = 'inline';
+                
+                setTimeout(() => {
+                    copyTextLabel.style.display = 'inline';
+                    copiedBadge.style.display = 'none';
+                }, 2000);
+            } catch (err) {
+                alert('خطأ في النسخ');
+            }
+        }
+
+        function clearAll() {
+            prefixInput.value = '';
+            linesInput.value = '';
+            resultOutput.value = '';
+        }
+
+        function checkKey(e) {
+            // Ctrl + Enter أو Cmd + Enter للتطبيق
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                process('add');
+            }
+        }
+    </script>
+</body>
+</html>
