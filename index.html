@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>معدل الأسطر الاحترافي</title>
+    <title>معدل الأسطر - Morad App</title>
     <style>
-        /* CSS الأصلي */
+        /* التنسيقات العامة */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
@@ -18,41 +18,56 @@
             height: 100dvh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* يمنع السكرول الخارجي */
+            overflow: hidden;
         }
 
+        /* الهيدر */
         header {
             background: white;
-            padding: 10px 15px;
+            padding: 8px 16px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #f1f1f1;
+            justify-content: space-between;
+            border-bottom: 1px solid #f3f4f6;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            flex-shrink: 0;
         }
 
-        header h1 {
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #111827;
             font-size: 14px;
-            color: #111;
+            font-weight: bold;
         }
 
         .clear-btn {
             background: #fef2f2;
             color: #ef4444;
             border: none;
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: 6px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
+        .clear-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* المحتوى الرئيسي */
         main {
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 10px;
-            gap: 10px;
+            padding: 8px;
+            gap: 8px;
             overflow: hidden;
         }
 
@@ -60,120 +75,183 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }
+
+        .input-group {
+            flex: 4;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             min-height: 0;
         }
 
-        .section-input { flex: 4; }
-        .section-output { flex: 3; }
+        .result-group {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            position: relative;
+        }
+
+        /* الحقول */
+        .input-wrapper {
+            position: relative;
+        }
 
         input, textarea {
             width: 100%;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
-            padding: 10px;
-            font-size: 13px;
+            padding: 8px 12px;
+            font-size: 14px;
             outline: none;
-            background: white;
             transition: border-color 0.2s;
+            background: white;
+        }
+
+        input {
+            padding-right: 32px; /* للأيقونة */
         }
 
         textarea {
             flex: 1;
             resize: none;
             font-family: monospace;
-            background: white;
+            font-size: 12px;
+            line-height: 1.5;
         }
 
-        /* إخفاء شريط التمرير */
-        textarea::-webkit-scrollbar { display: none; }
-        textarea {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        input:focus, textarea:focus {
+            border-color: #2563eb;
         }
 
-        /* إخفاء placeholder عند التركيز */
+        /* إخفاء الـ placeholder عند الضغط */
         input:focus::placeholder, textarea:focus::placeholder {
             color: transparent;
         }
 
-        input:focus, textarea:focus {
-            border-color: #3b82f6;
+        /* أيقونة الزائد داخل الحقل */
+        .plus-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            pointer-events: none;
         }
 
-        .btn-row {
+        /* إخفاء سكرول بار */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* الأزرار */
+        .actions {
             display: flex;
-            gap: 8px;
-            padding: 2px 0;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
-        button.action {
+        .btn {
             flex: 1;
             border: none;
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px;
+            font-size: 11px;
             font-weight: bold;
-            font-size: 12px;
-            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
+            transition: all 0.2s;
         }
 
-        .btn-add { background: #2563eb; flex: 2 !important; }
-        .btn-remove { background: #e5e7eb; color: #374151; }
-        .btn-copy { background: #111827; }
+        .btn-blue { background: #2563eb; color: white; }
+        .btn-gray { background: #e5e7eb; color: #374151; }
+        .btn-black { background: #111827; color: white; }
 
-        button.action:active { transform: scale(0.98); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background: #f3f4f6; color: #d1d5db; cursor: not-allowed; }
 
-        .copied-badge {
-            font-size: 10px;
-            color: #10b981;
+        /* النتيجة */
+        .result-area {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #4b5563;
+        }
+
+        /* تنبيه النسخ */
+        #copy-toast {
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            background: white;
+            border: 1px solid #dcfce7;
+            color: #166534;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
             font-weight: bold;
             display: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            z-index: 10;
         }
 
+        /* الفوتر */
         footer {
-            padding: 6px;
-            text-align: center;
-            font-size: 9px;
-            color: #9ca3af;
             background: white;
-            border-top: 1px solid #f1f1f1;
-        }
-
-        /* تحسينات للشاشات الكبيرة */
-        @media (min-width: 768px) {
-            main { flex-direction: row; }
+            padding: 4px;
+            text-align: center;
+            font-size: 8px;
+            color: #9ca3af;
+            border-top: 1px solid #f3f4f6;
+            flex-shrink: 0;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>معدل الأسطر</h1>
-        <button class="clear-btn" onclick="clearAll()">مسح الكل</button>
+        <div class="logo">
+            <!-- أيقونة ClipboardList -->
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+            معدل الأسطر
+        </div>
+        <button class="clear-btn" onclick="clearAll()">
+            <!-- أيقونة Trash2 -->
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            مسح
+        </button>
     </header>
 
     <main>
         <!-- قسم الإدخال -->
-        <div class="section section-input">
-            <input type="text" id="prefix" placeholder="البادئة (مثال: - )" spellcheck="false" onkeydown="checkKey(event)">
-            <textarea id="lines" placeholder="ضع الأسطر هنا..." spellcheck="false" onkeydown="checkKey(event)"></textarea>
+        <div class="input-group">
+            <div class="input-wrapper">
+                <span class="plus-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                </span>
+                <input type="text" id="prefix" placeholder="البادئة (مثال: - )" spellcheck="false">
+            </div>
+            <textarea id="lines" class="no-scrollbar" placeholder="اكتب الأسطر هنا..." spellcheck="false"></textarea>
         </div>
 
         <!-- أزرار التحكم -->
-        <div class="btn-row">
-            <button class="action btn-add" onclick="process('add')">إضافة</button>
-            <button class="action btn-remove" onclick="process('remove')">حذف</button>
-            <button class="action btn-copy" id="copyBtn" onclick="copyResult()">
-                <span id="copyText">نسخ</span>
-                <span class="copied-badge" id="copiedBadge">تم!</span>
+        <div class="actions">
+            <button class="btn btn-blue" onclick="addPrefix()">إضافة</button>
+            <button class="btn btn-gray" onclick="removePrefix()">حذف</button>
+            <button class="btn btn-black" id="copy-btn" onclick="copyResult()" disabled>
+                <span id="copy-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                </span>
+                <span id="copy-text">نسخ</span>
             </button>
         </div>
 
         <!-- قسم النتيجة -->
-        <div class="section section-output">
-            <textarea id="result" placeholder="النتيجة ستظهر هنا..." readonly spellcheck="false"></textarea>
+        <div class="result-group">
+            <div id="copy-toast">تم النسخ</div>
+            <textarea id="result" class="result-area no-scrollbar" placeholder="النتيجة غتبان هنا..." readonly spellcheck="false"></textarea>
         </div>
     </main>
 
@@ -182,70 +260,78 @@
     </footer>
 
     <script>
-        // JS الأصلي
         const prefixInput = document.getElementById('prefix');
         const linesInput = document.getElementById('lines');
         const resultOutput = document.getElementById('result');
-        const copyBtn = document.getElementById('copyBtn');
-        const copiedBadge = document.getElementById('copiedBadge');
-        const copyTextLabel = document.getElementById('copyText');
+        const copyBtn = document.getElementById('copy-btn');
+        const copyText = document.getElementById('copy-text');
+        const copyIcon = document.getElementById('copy-icon');
+        const copyToast = document.getElementById('copy-toast');
 
-        function process(type) {
+        // إضافة البادئة
+        function addPrefix() {
             const prefix = prefixInput.value;
-            const lines = linesInput.value;
-            
-            if (!lines) return;
+            const content = linesInput.value;
+            if (!content) return;
 
-            const linesArray = lines.split('\n');
-            let processedLines;
-
-            if (type === 'add') {
-                processedLines = linesArray.map(line => prefix + line);
-            } else {
-                processedLines = linesArray.map(line => {
-                    if (line.startsWith(prefix)) {
-                        return line.slice(prefix.length);
-                    }
-                    return line;
-                });
-            }
-
-            resultOutput.value = processedLines.join('\n');
+            const res = content.split('\n').map(line => prefix + line).join('\n');
+            updateResult(res);
         }
 
-        async function copyResult() {
-            const text = resultOutput.value;
-            if (!text) return;
+        // حذف البادئة
+        function removePrefix() {
+            const prefix = prefixInput.value;
+            const content = linesInput.value;
+            if (!content || !prefix) return;
 
-            try {
-                await navigator.clipboard.writeText(text);
-                
-                // تغيير شكل الزر للتأكيد
-                copyTextLabel.style.display = 'none';
-                copiedBadge.style.display = 'inline';
+            const res = content.split('\n').map(line => {
+                return line.startsWith(prefix) ? line.slice(prefix.length) : line;
+            }).join('\n');
+            updateResult(res);
+        }
+
+        // تحديث حقل النتيجة
+        function updateResult(val) {
+            resultOutput.value = val;
+            copyBtn.disabled = !val;
+        }
+
+        // نسخ النتيجة
+        function copyResult() {
+            const val = resultOutput.value;
+            if (!val) return;
+
+            navigator.clipboard.writeText(val).then(() => {
+                // إظهار التنبيه
+                copyToast.style.display = 'flex';
+                copyText.innerText = 'تم';
+                copyIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
                 
                 setTimeout(() => {
-                    copyTextLabel.style.display = 'inline';
-                    copiedBadge.style.display = 'none';
+                    copyToast.style.display = 'none';
+                    copyText.innerText = 'نسخ';
+                    copyIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
                 }, 2000);
-            } catch (err) {
-                alert('خطأ في النسخ');
-            }
+            });
         }
 
+        // مسح الكل
         function clearAll() {
             prefixInput.value = '';
             linesInput.value = '';
             resultOutput.value = '';
+            copyBtn.disabled = true;
         }
 
-        function checkKey(e) {
-            // Ctrl + Enter أو Cmd + Enter للتطبيق
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                process('add');
-            }
-        }
+        // اختصار لوحة المفاتيح Ctrl+Enter
+        [prefixInput, linesInput].forEach(el => {
+            el.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    addPrefix();
+                }
+            });
+        });
     </script>
 </body>
 </html>
